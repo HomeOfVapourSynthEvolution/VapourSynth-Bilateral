@@ -11,6 +11,8 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+[Rr]elease-SSE2/
+[Rr]elease-AVX/
 x64/
 x86/
 build/

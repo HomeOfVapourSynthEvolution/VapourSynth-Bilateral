@@ -2,6 +2,9 @@
 #define NUMERIC_H_
 
 
+typedef double FLType;
+
+
 template < typename T >
 T Min(T a, T b)
 {

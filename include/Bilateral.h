@@ -18,7 +18,7 @@ struct BilateralData {
     int PBFICnum[3];
     int process[3];
 
-    double * GR_LUT[3];
+    FLType * GR_LUT[3];
 
     BilateralData()
     {
@@ -41,8 +41,8 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
     const VSFormat *fi = vsapi->getFrameFormat(src);
     int Floor = 0;
     int Ceil = (1 << fi->bitsPerSample) - 1;
-    double FloorFL = static_cast<double>(Floor);
-    double CeilFL = static_cast<double>(Ceil);
+    FLType FloorFL = static_cast<FLType>(Floor);
+    FLType CeilFL = static_cast<FLType>(Ceil);
 
     int plane;
     for (plane = 0; plane < fi->numPlanes; plane++)
@@ -99,17 +99,17 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
             }
 
             // Generate recursive Gaussian parameters
-            double B, B1, B2, B3;
+            FLType B, B1, B2, B3;
             Recursive_Gaussian_Parameters(d->sigmaS[plane], B, B1, B2, B3);
 
             // Generate quantized PBFICs
-            double * Wk = new double[pcount];
-            double * Jk = new double[pcount];
-            double ** PBFIC = new double*[PBFICnum];
+            FLType * Wk = new FLType[pcount];
+            FLType * Jk = new FLType[pcount];
+            FLType ** PBFIC = new FLType*[PBFICnum];
 
             for (k = 0; k < PBFICnum; k++)
             {
-                PBFIC[k] = new double[pcount];
+                PBFIC[k] = new FLType[pcount];
 
                 for (j = 0; j < height; j++)
                 {
@@ -117,7 +117,7 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
                     for (upper = i + width; i < upper; i++)
                     {
                         Wk[i] = Gaussian_Distribution2D_Range_LUT_Lookup(d->GR_LUT[plane], PBFICk[k], refp[i]);
-                        Jk[i] = Wk[i] * static_cast<double>(srcp[i]);
+                        Jk[i] = Wk[i] * static_cast<FLType>(srcp[i]);
                     }
                 }
 

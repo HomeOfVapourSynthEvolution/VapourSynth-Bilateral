@@ -19,15 +19,6 @@ static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, vo
     if (activationReason == arInitial)
     {
         vsapi->requestFrameFilter(n, d->node, frameCtx);
-
-        for (int i = 0; i < 3; i++)
-        {
-            if (d->process[i])
-            {
-                Gaussian_Function_Range_LUT_Free(d->GR_LUT[i]);
-                d->GR_LUT[i] = Gaussian_Function_Range_LUT_Generation((1 << d->vi->format->bitsPerSample) - 1, d->sigmaR[i]);
-            }
-        }
     }
     else if (activationReason == arAllFramesReady)
     {
@@ -276,6 +267,17 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
 
     BilateralData *data = new BilateralData(d);
 
+    // Initialize Gaussian function range weight LUT
+    for (int i = 0; i < 3; i++)
+    {
+        if (data->process[i])
+        {
+            Gaussian_Function_Range_LUT_Free(data->GR_LUT[i]);
+            data->GR_LUT[i] = Gaussian_Function_Range_LUT_Generation((1 << data->vi->format->bitsPerSample) - 1, data->sigmaR[i]);
+        }
+    }
+
+    // Create filter
     vsapi->createFilter(in, out, "Bilateral", BilateralInit, BilateralGetFrame, BilateralFree, fmParallel, 0, data, core);
 }
 

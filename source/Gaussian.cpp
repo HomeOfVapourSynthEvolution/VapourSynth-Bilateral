@@ -1,9 +1,10 @@
 #include "..\include\VapourSynth.h"
+#include "..\include\Numeric.h"
 #include "..\include\Gaussian.h"
 #include "..\include\Bilateral.h"
 
 
-void Recursive_Gaussian_Parameters(const double sigma, double & B, double & B1, double & B2, double & B3)
+void Recursive_Gaussian_Parameters(const double sigma, FLType & B, FLType & B1, FLType & B2, FLType & B3)
 {
     const double q = sigma < 2.5 ? 3.97156 - 4.14554*sqrt(1 - 0.26891*sigma) : 0.98711*sigma - 0.96330;
 
@@ -12,16 +13,16 @@ void Recursive_Gaussian_Parameters(const double sigma, double & B, double & B1, 
     const double b2 = -(1.4281*q*q + 1.26661*q*q*q);
     const double b3 = 0.422205*q*q*q;
 
-    B = 1 - (b1 + b2 + b3) / b0;
-    B1 = b1 / b0;
-    B2 = b2 / b0;
-    B3 = b3 / b0;
+    B = static_cast<FLType>(1 - (b1 + b2 + b3) / b0);
+    B1 = static_cast<FLType>(b1 / b0);
+    B2 = static_cast<FLType>(b2 / b0);
+    B3 = static_cast<FLType>(b3 / b0);
 }
 
-void Recursive_Gaussian2D_Vertical(double * output, const double * input, int width, int height, int stride, const double B, const double B1, const double B2, const double B3)
+void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
 {
     int i, j, lower, upper;
-    double P0, P1, P2, P3;
+    FLType P0, P1, P2, P3;
     int pcount = stride*height;
 
     for (j = 0; j < width; j++)
@@ -55,10 +56,10 @@ void Recursive_Gaussian2D_Vertical(double * output, const double * input, int wi
     }
 }
 
-void Recursive_Gaussian2D_Horizontal(double * output, const double * input, int width, int height, int stride, const double B, const double B1, const double B2, const double B3)
+void Recursive_Gaussian2D_Horizontal(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
 {
     int i, j, lower, upper;
-    double P0, P1, P2, P3;
+    FLType P0, P1, P2, P3;
 
     for (j = 0; j < height; j++)
     {
