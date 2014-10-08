@@ -5,14 +5,14 @@
 #include "..\include\Bilateral.h"
 
 
-static void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi)
+void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi)
 {
     BilateralData *d = (BilateralData *)* instanceData;
 
     vsapi->setVideoInfo(d->vi, 1, node);
 }
 
-static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
+const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
     BilateralData *d = (BilateralData *)* instanceData;
 
@@ -31,7 +31,6 @@ static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, vo
         VSFrameRef *dst = vsapi->newVideoFrame2(fi, width, height, cp_planes, planes, src, core);
 
         const VSFrameRef *ref = d->joint ? vsapi->getFrameFilter(n, d->rnode, frameCtx) : src;
-        const VSFormat *rfi = d->joint ? vsapi->getFrameFormat(ref) : fi;
         
         if (d->vi->format->bytesPerSample == 1)
         {
@@ -51,7 +50,7 @@ static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, vo
     return nullptr;
 }
 
-static void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
+void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
 {
     BilateralData *d = (BilateralData *)instanceData;
 
