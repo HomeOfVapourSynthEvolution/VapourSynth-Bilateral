@@ -31,7 +31,6 @@ static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, vo
         VSFrameRef *dst = vsapi->newVideoFrame2(fi, width, height, cp_planes, planes, src, core);
 
         const VSFrameRef *ref = d->joint ? vsapi->getFrameFilter(n, d->rnode, frameCtx) : src;
-        const VSFormat *rfi = d->joint ? vsapi->getFrameFormat(ref) : fi;
         
         if (d->vi->format->bytesPerSample == 1)
         {

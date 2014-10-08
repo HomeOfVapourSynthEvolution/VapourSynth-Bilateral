@@ -2,7 +2,6 @@
 #define GAUSSIAN_H_
 
 
-#include <iostream>
 #include <cmath>
 #include "Numeric.h"
 #include "VapourSynth.h"
