@@ -7,6 +7,9 @@
 #include "VapourSynth.h"
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 struct BilateralData {
     VSNodeRef *node;
     const VSVideoInfo *vi;
@@ -27,6 +30,12 @@ struct BilateralData {
         GR_LUT[2] = nullptr;
     }
 };
+
+
+void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 template < typename T >
@@ -58,33 +67,8 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
             pcount = stride * height;
             PBFICnum = d->PBFICnum[plane];
 
-            // Get the minimum and maximum pixel value of Plane "ref"
+            // Value range of Plane "ref"
             T rLower, rUpper, rRange;
-
-            /*// First set rLower to the highest number and rUpper to the lowest number
-            rLower = Ceil;
-            rUpper = Floor;
-            for (j = 0; j < height; j++)
-            {
-                i = stride * j;
-                for (upper = i + width; i < upper; i++)
-                {
-                    if (rLower > refp[i]) rLower = refp[i];
-                    if (rUpper < refp[i]) rUpper = refp[i];
-                }
-            }
-            rRange = rUpper - rLower;
-            if (rRange < PBFICnum - 1)
-            {
-                rRange = PBFICnum - 1;
-                if (rUpper < rRange)
-                {
-                    rLower = 0;
-                    rUpper = rRange;
-                }
-                else
-                    rLower = rUpper - rRange;
-            }*/
 
             rLower = Floor;
             rUpper = Ceil;
@@ -131,7 +115,7 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
                     i = stride * j;
                     for (upper = i + width; i < upper; i++)
                     {
-                        PBFIC[k][i] = Jk[i] / Wk[i];
+                        PBFIC[k][i] = Wk[i] == 0 ? 0 : Jk[i] / Wk[i];
                     }
                 }
             }
@@ -147,7 +131,7 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
                         if (refp[i] < PBFICk[k + 1] && refp[i] >= PBFICk[k]) break;
                     }
 
-                    dstp[i] = static_cast<T>(Clip(((PBFICk[k + 1] - refp[i])*PBFIC[k][i] + (refp[i] - PBFICk[k])*PBFIC[k + 1][i]) / (PBFICk[k + 1] - PBFICk[k]), FloorFL, CeilFL));
+                    dstp[i] = static_cast<T>(Clip(((PBFICk[k + 1] - refp[i])*PBFIC[k][i] + (refp[i] - PBFICk[k])*PBFIC[k + 1][i]) / (PBFICk[k + 1] - PBFICk[k]) + FLType(0.5), FloorFL, CeilFL));
                 }
             }
 
@@ -163,11 +147,7 @@ void Bilateral2D(VSFrameRef * dst, const VSFrameRef * src, const VSFrameRef * re
 }
 
 
-static void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi);
-static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi);
-static void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *vsapi);
-void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi);
-VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegisterFunction registerFunc, VSPlugin *plugin);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #endif

@@ -185,6 +185,7 @@
   <ItemGroup>
     <ClCompile Include="..\source\Bilateral.cpp" />
     <ClCompile Include="..\source\Gaussian.cpp" />
+    <ClCompile Include="..\source\VSPlugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Bilateral.h" />
