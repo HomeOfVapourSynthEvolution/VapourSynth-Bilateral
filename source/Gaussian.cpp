@@ -17,7 +17,7 @@ static void VS_CC GaussianInit(VSMap *in, VSMap *out, void **instanceData, VSNod
 
 static const VSFrameRef *VS_CC GaussianGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
-    GaussianData *d = reinterpret_cast<GaussianData *>(*instanceData);
+    const GaussianData *d = reinterpret_cast<GaussianData *>(*instanceData);
 
     if (activationReason == arInitial)
     {
@@ -54,8 +54,6 @@ static void VS_CC GaussianFree(void *instanceData, VSCore *core, const VSAPI *vs
 {
     GaussianData *d = reinterpret_cast<GaussianData *>(instanceData);
 
-    vsapi->freeNode(d->node);
-
     delete d;
 }
 
@@ -65,7 +63,9 @@ static void VS_CC GaussianFree(void *instanceData, VSCore *core, const VSAPI *vs
 
 void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi)
 {
-    GaussianData d;
+    GaussianData *data = new GaussianData(vsapi);
+    GaussianData &d = *data;
+
     int i, m;
 
     d.node = vsapi->propGetNode(in, "input", 0, nullptr);
@@ -73,13 +73,13 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
 
     if (!d.vi->format)
     {
-        vsapi->freeNode(d.node);
+        delete data;
         vsapi->setError(out, "bilateral.Gaussian: Invalid input clip, Only constant format input supported");
         return;
     }
     if (d.vi->format->sampleType != stInteger || (d.vi->format->bytesPerSample != 1 && d.vi->format->bytesPerSample != 2))
     {
-        vsapi->freeNode(d.node);
+        delete data;
         vsapi->setError(out, "bilateral.Gaussian: Invalid input clip, Only 8-16 bit int formats supported");
         return;
     }
@@ -95,7 +95,7 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
         }
         else if (i == 0)
         {
-            d.sigma[0] = 5.0;
+            d.sigma[0] = 3.0;
         }
         else if (i == 1 && chroma && d.vi->format->subSamplingW) // Reduce sigma for sub-sampled chroma planes by default
         {
@@ -108,7 +108,7 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
 
         if (d.sigma[i] < 0)
         {
-            vsapi->freeNode(d.node);
+            delete data;
             vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigma\" specified, must be non-negative float number");
             return;
         }
@@ -140,7 +140,7 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
 
         if (d.sigmaV[i] < 0)
         {
-            vsapi->freeNode(d.node);
+            delete data;
             vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigma\" specified, must be non-negative float number");
             return;
         }
@@ -153,8 +153,6 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
         else
             d.process[i] = 1;
     }
-
-    GaussianData *data = new GaussianData(d);
 
     // Create filter
     vsapi->createFilter(in, out, "Gaussian", GaussianInit, GaussianGetFrame, GaussianFree, fmParallel, 0, data, core);

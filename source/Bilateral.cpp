@@ -16,7 +16,7 @@ static void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNo
 
 static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
-    BilateralData *d = reinterpret_cast<BilateralData *>(*instanceData);
+    const BilateralData *d = reinterpret_cast<BilateralData *>(*instanceData);
 
     if (activationReason == arInitial)
     {
@@ -57,17 +57,6 @@ static void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *v
 {
     BilateralData *d = reinterpret_cast<BilateralData *>(instanceData);
 
-    for (int i = 0; i < 3; i++)
-    {
-        if (d->process[i])
-        {
-            Gaussian_Function_Range_LUT_Free(d->GR_LUT[i]);
-        }
-    }
-
-    vsapi->freeNode(d->node);
-    if (d->joint) vsapi->freeNode(d->rnode);
-
     delete d;
 }
 
@@ -77,7 +66,9 @@ static void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *v
 
 void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi)
 {
-    BilateralData d;
+    BilateralData *data = new BilateralData(vsapi);
+    BilateralData &d = *data;
+
     int error;
     int i, n, m, o;
 
@@ -86,13 +77,13 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
 
     if (!d.vi->format)
     {
-        vsapi->freeNode(d.node);
+        delete data;
         vsapi->setError(out, "bilateral.Bilateral: Invalid input clip, Only constant format input supported");
         return;
     }
     if (d.vi->format->sampleType != stInteger || (d.vi->format->bytesPerSample != 1 && d.vi->format->bytesPerSample != 2))
     {
-        vsapi->freeNode(d.node);
+        delete data;
         vsapi->setError(out, "bilateral.Bilateral: Invalid input clip, Only 8-16 bit int formats supported");
         return;
     }
@@ -109,49 +100,41 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
 
         if (!d.rvi->format)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: Invalid clip \"ref\", Only constant format input supported");
             return;
         }
         if (d.rvi->format->sampleType != stInteger || (d.rvi->format->bytesPerSample != 1 && d.rvi->format->bytesPerSample != 2))
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: Invalid clip \"ref\", Only 8-16 bit int formats supported");
             return;
         }
         if (d.vi->width != d.rvi->width || d.vi->height != d.rvi->height)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: input clip and clip \"ref\" must be of the same size");
             return;
         }
         if (d.vi->format->colorFamily != d.rvi->format->colorFamily)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: input clip and clip \"ref\" must be of the same color family");
             return;
         }
         if (d.vi->format->subSamplingH != d.rvi->format->subSamplingH || d.vi->format->subSamplingW != d.rvi->format->subSamplingW)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: input clip and clip \"ref\" must be of the same subsampling");
             return;
         }
         if (d.vi->format->bitsPerSample != d.rvi->format->bitsPerSample)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: input clip and clip \"ref\" must be of the same bit depth");
             return;
         }
     }
-
-    bool chroma = d.vi->format->colorFamily == cmYUV || d.vi->format->colorFamily == cmYCoCg;
 
     m = vsapi->propNumElements(in, "sigmaS");
     for (i = 0; i < 3; i++)
@@ -162,9 +145,9 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         }
         else if (i == 0)
         {
-            d.sigmaS[0] = 5.0;
+            d.sigmaS[0] = 3.0;
         }
-        else if (i == 1 && chroma && d.vi->format->subSamplingH && d.vi->format->subSamplingW) // Reduce sigmaS for sub-sampled chroma planes by default
+        else if (i == 1 && d.isYUV() && d.vi->format->subSamplingH && d.vi->format->subSamplingW) // Reduce sigmaS for sub-sampled chroma planes by default
         {
             d.sigmaS[1] = d.sigmaS[0] / std::sqrt((1 << d.vi->format->subSamplingH)*(1 << d.vi->format->subSamplingW));
         }
@@ -175,8 +158,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
 
         if (d.sigmaS[i] < 0)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaS\" specified, must be non-negative float number");
             return;
         }
@@ -191,7 +173,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         }
         else if (i == 0)
         {
-            d.sigmaR[i] = 0.04;
+            d.sigmaR[i] = 0.02;
         }
         else
         {
@@ -200,9 +182,63 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
 
         if (d.sigmaR[i] < 0)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
+            delete data;
             vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaR\" specified, must be non-negative float number");
+            return;
+        }
+    }
+
+    n = d.vi->format->numPlanes;
+    m = vsapi->propNumElements(in, "planes");
+    for (i = 0; i < 3; i++)
+    {
+        if (i > 0 && d.isYUV()) // Chroma planes are not processed by default
+            d.process[i] = 0;
+        else
+            d.process[i] = m <= 0;
+    }
+    for (i = 0; i < m; i++) {
+        o = int64ToIntS(vsapi->propGetInt(in, "planes", i, nullptr));
+        if (o < 0 || o >= n)
+        {
+            delete data;
+            vsapi->setError(out, "bilateral.Bilateral: plane index out of range");
+            return;
+        }
+        if (d.process[o])
+        {
+            delete data;
+            vsapi->setError(out, "bilateral.Bilateral: plane specified twice");
+            return;
+        }
+        d.process[o] = 1;
+    }
+    for (i = 0; i < 3; i++)
+    {
+        if (d.sigmaS[i] == 0 || d.sigmaR[i] == 0)
+            d.process[i] = 0;
+    }
+
+    m = vsapi->propNumElements(in, "algorithm");
+    for (i = 0; i < 3; i++)
+    {
+        if (i < m)
+        {
+            d.algorithm[i] = int64ToIntS(vsapi->propGetInt(in, "algorithm", i, nullptr));
+        }
+        else if (i == 0)
+        {
+            d.algorithm[i] = 0;
+        }
+        else
+        {
+            d.algorithm[i] = d.algorithm[i - 1];
+        }
+
+        if (d.algorithm[i] < 0 || d.algorithm[i] > 2)
+        {
+            delete data;
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"algorithm\" specified, valid range is integer in [0,2]");
             return;
         }
     }
@@ -214,82 +250,31 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         {
             d.PBFICnum[i] = int64ToIntS(vsapi->propGetInt(in, "PBFICnum", i, nullptr));
         }
-        else if (i > 0 && chroma)
+        else if (i == 0)
         {
-            if (d.sigmaR[i] >= 0.08)
-            {
-                d.PBFICnum[i] = 4;
-            }
-            else if (d.sigmaR[i] >= 0.015)
-            {
-                d.PBFICnum[i] = Min(16, static_cast<int>(4 * 0.08 / d.sigmaR[i] + 0.5));
-            }
-            else
-            {
-                d.PBFICnum[i] = Min(32, static_cast<int>(16 * 0.015 / d.sigmaR[i] + 0.5));
-            }
-            if (d.PBFICnum[i] % 2 == 0 && d.PBFICnum[i] < 256) // Set odd PBFIC number to chroma planes by default
-                d.PBFICnum[i]++;
+            d.PBFICnum[i] = 0;
         }
         else
         {
-            if (d.sigmaR[i] >= 0.08)
-            {
-                d.PBFICnum[i] = 4;
-            }
-            else if (d.sigmaR[i] >= 0.015)
-            {
-                d.PBFICnum[i] = Min(16, static_cast<int>(4 * 0.08 / d.sigmaR[i] + 0.5));
-            }
-            else
-            {
-                d.PBFICnum[i] = Min(32, static_cast<int>(16 * 0.015 / d.sigmaR[i] + 0.5));
-            }
+            d.PBFICnum[i] = d.PBFICnum[i - 1];
         }
 
-        if (d.PBFICnum[i] < 2 || d.PBFICnum[i] > 256)
+        if (d.PBFICnum[i] < 0 || d.PBFICnum[i] == 1 || d.PBFICnum[i] > 256)
         {
-            vsapi->freeNode(d.node);
-            if (d.joint) vsapi->freeNode(d.rnode);
-            vsapi->setError(out, "bilateral.Bilateral: Invalid \"PBFICnum\" specified, valid range is integer in [2,256]");
+            delete data;
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"PBFICnum\" specified, valid range is integer in [0,256] except 1");
             return;
         }
     }
 
-    n = d.vi->format->numPlanes;
-    m = vsapi->propNumElements(in, "planes");
-    for (i = 0; i < 3; i++)
-    {
-        if (i > 0 && chroma) // Chroma planes are not processed by default
-            d.process[i] = 0;
-        else
-            d.process[i] = m <= 0;
-    }
-    for (i = 0; i < m; i++) {
-        o = int64ToIntS(vsapi->propGetInt(in, "planes", i, nullptr));
-        if (o < 0 || o >= n)
-            vsapi->setError(out, "bilateral.Bilateral: plane index out of range");
-        if (d.process[o])
-            vsapi->setError(out, "bilateral.Bilateral: plane specified twice");
-        d.process[o] = 1;
-    }
-    for (i = 0; i < 3; i++)
-    {
-        if (d.sigmaS[i] == 0 || d.sigmaR[i] == 0)
-            d.process[i] = 0;
-    }
+    // Set parameters for each algorithm and select appropriate algorithm for each plane if algorithm[plane] == 0
+    d.Bilateral2D_1_Paras();
+    d.Bilateral2D_2_Paras();
+    d.algorithm_select();
 
-    BilateralData *data = new BilateralData(d);
-
-    // Initialize Gaussian function range weight LUT
-    for (int i = 0; i < 3; i++)
-    {
-        if (data->process[i])
-        {
-            Gaussian_Function_Range_LUT_Free(data->GR_LUT[i]);
-            data->GR_LUT[i] = Gaussian_Function_Range_LUT_Generation((1 << data->vi->format->bitsPerSample) - 1, data->sigmaR[i]);
-        }
-    }
+    // Initialize Gaussian function spatial/range weight LUT
+    d.GS_LUT_Init();
+    d.GR_LUT_Init();
 
     // Create filter
     vsapi->createFilter(in, out, "Bilateral", BilateralInit, BilateralGetFrame, BilateralFree, fmParallel, 0, data, core);

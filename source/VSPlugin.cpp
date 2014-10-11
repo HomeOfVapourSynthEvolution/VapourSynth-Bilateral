@@ -12,7 +12,7 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegiste
         "O(1) bilateral filter based on PBFIC.",
         VAPOURSYNTH_API_VERSION, 1, plugin);
 
-    registerFunc("Bilateral", "input:clip;ref:clip:opt;sigmaS:float[]:opt;sigmaR:float[]:opt;PBFICnum:int[]:opt;planes:int[]:opt", BilateralCreate, nullptr, plugin);
+    registerFunc("Bilateral", "input:clip;ref:clip:opt;sigmaS:float[]:opt;sigmaR:float[]:opt;planes:int[]:opt;algorithm:int[]:opt;PBFICnum:int[]:opt", BilateralCreate, nullptr, plugin);
     registerFunc("Gaussian", "input:clip;sigma:float[]:opt;sigmaV:float[]:opt", GaussianCreate, nullptr, plugin);
 }
 

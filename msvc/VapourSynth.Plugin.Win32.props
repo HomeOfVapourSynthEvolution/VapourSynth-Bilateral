@@ -10,6 +10,10 @@
       <AdditionalLibraryDirectories>C:\Program Files (x86)\VapourSynth\sdk\lib32</AdditionalLibraryDirectories>
       <AdditionalDependencies>vapoursynth.lib;vsscript.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\VapourSynth\sdk\include</AdditionalIncludeDirectories>
+      <FloatingPointModel>Fast</FloatingPointModel>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
