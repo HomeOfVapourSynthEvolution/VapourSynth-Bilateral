@@ -64,17 +64,6 @@ int stride_cal(int width)
 
 
 template < typename T >
-T * newbuff(const T * src, int xoffset, int yoffset,
-    int bufheight, int bufwidth, int bufstride, int height, int width, int stride)
-{
-    T * dst = vs_aligned_malloc<T>(sizeof(T)*bufheight*bufstride, Alignment);
-
-    data2buff(dst, src, xoffset, yoffset, bufheight, bufwidth, bufstride, height, width, stride);
-
-    return dst;
-}
-
-template < typename T >
 void data2buff(T * dst, const T * src, int xoffset, int yoffset,
     int bufheight, int bufwidth, int bufstride, int height, int width, int stride)
 {
@@ -106,6 +95,15 @@ void data2buff(T * dst, const T * src, int xoffset, int yoffset,
         dstp = dst + y * bufstride;
         memcpy(dstp, srcp, sizeof(T)*bufwidth);
     }
+}
+
+template < typename T >
+T * newbuff(const T * src, int xoffset, int yoffset,
+    int bufheight, int bufwidth, int bufstride, int height, int width, int stride)
+{
+    T * dst = vs_aligned_malloc<T>(sizeof(T)*bufheight*bufstride, Alignment);
+    data2buff(dst, src, xoffset, yoffset, bufheight, bufwidth, bufstride, height, width, stride);
+    return dst;
 }
 
 template < typename T >

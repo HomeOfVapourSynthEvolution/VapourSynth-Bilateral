@@ -320,7 +320,6 @@ void Bilateral2D_2(T * dst, const T * src, const T * ref, const BilateralData * 
     int radiusx = d->radius[plane];
     int radiusy = d->radius[plane];
     int buffnum = radiusy * 2 + 1;
-    int samplenum = d->samples[plane];
     int samplestep = d->step[plane];
     int samplecenter = buffnum / 2;
 
@@ -402,7 +401,6 @@ void Bilateral2D_2(T * dst, const T * src, const BilateralData * d, int plane, i
     int radiusx = d->radius[plane];
     int radiusy = d->radius[plane];
     int buffnum = radiusy * 2 + 1;
-    int samplenum = d->samples[plane];
     int samplestep = d->step[plane];
     int samplecenter = buffnum / 2;
 
