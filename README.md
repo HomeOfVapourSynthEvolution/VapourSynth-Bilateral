@@ -56,7 +56,7 @@ By default, this function will only process Y plane for YUV format, and process 
     2 = Bilateral filter with truncated spatial window and sub-sampling. O(sigmaS^2)
 
 - PBFICnum: Number of PBFICs used in algorithm=1.<br />
-    Default: 4 when sigmaR>=0.08. It will increase as sigmaR decreases, upper to 32. For chroma plane default value will be odd to better preserve neutral value of chromiance.<br />
+    Default: 4 when sigmaR>=0.08. It will increase as sigmaR decreases, up to 32. For chroma plane default value will be odd to better preserve neutral value of chromiance.<br />
     Available range is [2,256].<br />
     Use an array to specify PBFICnum for each plane.
 

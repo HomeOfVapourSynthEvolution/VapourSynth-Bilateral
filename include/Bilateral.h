@@ -2,10 +2,10 @@
 #define BILATERAL_H_
 
 
-#include "Numeric.h"
+#include <vapoursynth\VapourSynth.h>
+#include <vapoursynth\VSHelper.h>
+#include "Helper.h"
 #include "Gaussian.h"
-#include "VapourSynth.h"
-#include "VSHelper.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,10 +270,10 @@ void Bilateral2D_1(T * dst, const T * src, const T * ref, const BilateralData * 
             }
         }
 
-        Recursive_Gaussian2D_Horizontal(Wk, Wk, width, height, stride, B, B1, B2, B3);
-        Recursive_Gaussian2D_Vertical(Wk, Wk, width, height, stride, B, B1, B2, B3);
-        Recursive_Gaussian2D_Horizontal(Jk, Jk, width, height, stride, B, B1, B2, B3);
-        Recursive_Gaussian2D_Vertical(Jk, Jk, width, height, stride, B, B1, B2, B3);
+        Recursive_Gaussian2D_Horizontal(Wk, Wk, height, width, stride, B, B1, B2, B3);
+        Recursive_Gaussian2D_Vertical(Wk, Wk, height, width, stride, B, B1, B2, B3);
+        Recursive_Gaussian2D_Horizontal(Jk, Jk, height, width, stride, B, B1, B2, B3);
+        Recursive_Gaussian2D_Vertical(Jk, Jk, height, width, stride, B, B1, B2, B3);
 
         for (j = 0; j < height; j++)
         {

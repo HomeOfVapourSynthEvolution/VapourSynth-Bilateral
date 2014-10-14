@@ -1,8 +1,7 @@
-#include "..\include\VapourSynth.h"
-#include "..\include\VSHelper.h"
-#include "..\include\Numeric.h"
+#include <vapoursynth\VapourSynth.h>
+#include <vapoursynth\VSHelper.h>
+#include "..\include\Helper.h"
 #include "..\include\Gaussian.h"
-#include "..\include\Bilateral.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +176,7 @@ void Recursive_Gaussian_Parameters(const double sigma, FLType & B, FLType & B1, 
     B3 = static_cast<FLType>(b3 / b0);
 }
 
-void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
+void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int height, int width, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
 {
     int i, j, lower, upper;
     FLType P0, P1, P2, P3;
@@ -214,7 +213,7 @@ void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int wi
     }
 }
 
-void Recursive_Gaussian2D_Horizontal(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
+void Recursive_Gaussian2D_Horizontal(FLType * output, const FLType * input, int height, int width, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3)
 {
     int i, j, lower, upper;
     FLType P0, P1, P2, P3;

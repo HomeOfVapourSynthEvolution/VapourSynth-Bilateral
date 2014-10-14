@@ -3,9 +3,9 @@
 
 
 #include <cmath>
-#include "Numeric.h"
-#include "VapourSynth.h"
-#include "VSHelper.h"
+#include <vapoursynth\VapourSynth.h>
+#include <vapoursynth\VSHelper.h>
+#include "Helper.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ const double sigmaRMul = sizeof(FLType) < 8 ? 8. : 32.; // 8. when FLType is flo
 
 
 void Recursive_Gaussian_Parameters(const double sigma, FLType & B, FLType & B1, FLType & B2, FLType & B3);
-void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3);
-void Recursive_Gaussian2D_Horizontal(FLType * output, const FLType * input, int width, int height, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3);
+void Recursive_Gaussian2D_Vertical(FLType * output, const FLType * input, int height, int width, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3);
+void Recursive_Gaussian2D_Horizontal(FLType * output, const FLType * input, int height, int width, int stride, const FLType B, const FLType B1, const FLType B2, const FLType B3);
 
 
 inline double Gaussian_Function(double x, double sigma)
@@ -149,8 +149,10 @@ void Gaussian2D(VSFrameRef * dst, const VSFrameRef * src, const GaussianData * d
     int stride, width, height, pcount;
 
     const VSFormat *fi = vsapi->getFrameFormat(src);
+    
+    int bps = fi->bitsPerSample;
     int Floor = 0;
-    int Ceil = (1 << fi->bitsPerSample) - 1;
+    int Ceil = (1 << bps) - 1;
     FLType FloorFL = static_cast<FLType>(Floor);
     FLType CeilFL = static_cast<FLType>(Ceil);
 
@@ -185,8 +187,8 @@ void Gaussian2D(VSFrameRef * dst, const VSFrameRef * src, const GaussianData * d
             }
 
             // Apply 2D recursive Gaussian filter to floating point data
-            if (d->sigma[plane] > 0) Recursive_Gaussian2D_Horizontal(data, data, width, height, stride, B_H, B1_H, B2_H, B3_H);
-            if (d->sigmaV[plane] > 0) Recursive_Gaussian2D_Vertical(data, data, width, height, stride, B_V, B1_V, B2_V, B3_V);
+            if (d->sigma[plane] > 0) Recursive_Gaussian2D_Horizontal(data, data, height, width, stride, B_H, B1_H, B2_H, B3_H);
+            if (d->sigmaV[plane] > 0) Recursive_Gaussian2D_Vertical(data, data, height, width, stride, B_V, B1_V, B2_V, B3_V);
 
             // Convert floating point data to dst
             for (j = 0; j < height; j++)

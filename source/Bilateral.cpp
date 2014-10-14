@@ -1,6 +1,5 @@
-#include "..\include\VapourSynth.h"
-#include "..\include\VSHelper.h"
-#include "..\include\Numeric.h"
+#include <vapoursynth\VapourSynth.h>
+#include <vapoursynth\VSHelper.h>
 #include "..\include\Bilateral.h"
 
 

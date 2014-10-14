@@ -1,4 +1,4 @@
-#include "..\include\VapourSynth.h"
+#include <vapoursynth\VapourSynth.h>
 #include "..\include\Bilateral.h"
 #include "..\include\Gaussian.h"
 

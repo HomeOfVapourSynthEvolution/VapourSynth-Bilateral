@@ -194,10 +194,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Bilateral.h" />
     <ClInclude Include="..\include\Gaussian.h" />
-    <ClInclude Include="..\include\Numeric.h" />
-    <ClInclude Include="..\include\VapourSynth.h" />
-    <ClInclude Include="..\include\VSHelper.h" />
-    <ClInclude Include="..\include\VSScript.h" />
+    <ClInclude Include="..\include\Helper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
