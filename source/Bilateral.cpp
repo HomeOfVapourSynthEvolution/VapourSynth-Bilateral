@@ -1,6 +1,4 @@
-#include <vapoursynth\VapourSynth.h>
-#include <vapoursynth\VSHelper.h>
-#include "..\include\Bilateral.h"
+#include "Bilateral.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +156,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         if (d.sigmaS[i] < 0)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaS\" specified, must be non-negative float number");
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaS\" assigned, must be non-negative float number");
             return;
         }
     }
@@ -182,7 +180,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         if (d.sigmaR[i] < 0)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaR\" specified, must be non-negative float number");
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"sigmaR\" assigned, must be non-negative float number");
             return;
         }
     }
@@ -237,7 +235,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         if (d.algorithm[i] < 0 || d.algorithm[i] > 2)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Bilateral: Invalid \"algorithm\" specified, valid range is integer in [0,2]");
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"algorithm\" assigned, must be integer ranges in [0,2]");
             return;
         }
     }
@@ -261,7 +259,7 @@ void VS_CC BilateralCreate(const VSMap *in, VSMap *out, void *userData, VSCore *
         if (d.PBFICnum[i] < 0 || d.PBFICnum[i] == 1 || d.PBFICnum[i] > 256)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Bilateral: Invalid \"PBFICnum\" specified, valid range is integer in [0,256] except 1");
+            vsapi->setError(out, "bilateral.Bilateral: Invalid \"PBFICnum\" assigned, must be integer ranges in [0,256] except 1");
             return;
         }
     }

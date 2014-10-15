@@ -2,8 +2,6 @@
 #define BILATERAL_H_
 
 
-#include <vapoursynth\VapourSynth.h>
-#include <vapoursynth\VSHelper.h>
 #include "Helper.h"
 #include "Gaussian.h"
 

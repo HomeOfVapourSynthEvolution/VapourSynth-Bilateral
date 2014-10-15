@@ -1,14 +1,21 @@
-#ifndef NUMERIC_H_
-#define NUMERIC_H_
+#ifndef HELPER_H_
+#define HELPER_H_
 
 
-#include <vapoursynth\VSHelper.h>
+#include <vector>
+#include <cfloat>
+#include <vapoursynth/VapourSynth.h>
+#include <vapoursynth/VSHelper.h>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 typedef float FLType;
+
+
+const FLType FLType_MAX = sizeof(FLType) < 8 ? FLT_MAX : DBL_MAX;
+const FLType FLType_MIN = sizeof(FLType) < 8 ? FLT_MIN : DBL_MIN;
 
 
 template < typename T >
@@ -27,6 +34,12 @@ template < typename T >
 T Clip(T input, T Floor, T Ceil)
 {
     return input <= Floor ? Floor : input >= Ceil ? Ceil : input;
+}
+
+template <typename T>
+inline T Abs(T input)
+{
+    return input < 0 ? -input : input;
 }
 
 template <typename T>

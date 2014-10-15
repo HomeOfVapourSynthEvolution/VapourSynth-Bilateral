@@ -1,7 +1,4 @@
-#include <vapoursynth\VapourSynth.h>
-#include <vapoursynth\VSHelper.h>
-#include "..\include\Helper.h"
-#include "..\include\Gaussian.h"
+#include "Gaussian.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +105,7 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
         if (d.sigma[i] < 0)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigma\" specified, must be non-negative float number");
+            vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigma\" assigned, must be non-negative float number");
             return;
         }
     }
@@ -140,7 +137,7 @@ void VS_CC GaussianCreate(const VSMap *in, VSMap *out, void *userData, VSCore *c
         if (d.sigmaV[i] < 0)
         {
             delete data;
-            vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigma\" specified, must be non-negative float number");
+            vsapi->setError(out, "bilateral.Gaussian: Invalid \"sigmaV\" assigned, must be non-negative float number");
             return;
         }
     }
