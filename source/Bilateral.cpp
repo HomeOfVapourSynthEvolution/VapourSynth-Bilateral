@@ -4,14 +4,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-static void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi)
+void VS_CC BilateralInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi)
 {
     BilateralData *d = reinterpret_cast<BilateralData *>(*instanceData);
 
     vsapi->setVideoInfo(d->vi, 1, node);
 }
 
-static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
+const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi)
 {
     const BilateralData *d = reinterpret_cast<BilateralData *>(*instanceData);
 
@@ -50,7 +50,7 @@ static const VSFrameRef *VS_CC BilateralGetFrame(int n, int activationReason, vo
     return nullptr;
 }
 
-static void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
+void VS_CC BilateralFree(void *instanceData, VSCore *core, const VSAPI *vsapi)
 {
     BilateralData *d = reinterpret_cast<BilateralData *>(instanceData);
 
