@@ -41,7 +41,7 @@ bilateral.Bilateral(clip input, clip ref=input, float[] sigmaS=3.0, float[] sigm
     sigma of Gaussian function to calculate spatial weight.<br />
     The scale of this parameter is equivalent to pixel distance.<br />
     Larger sigmaS results in larger filtering radius as well as stronger smoothing.<br />
-    Use an array to assigne sigmaS for each plane. If sigmaS for the second plane is not specified, it will be set according to the sigmaS of first plane and sub-sampling.<br />
+    Use an array to assign sigmaS for each plane. If sigmaS for the second plane is not specified, it will be set according to the sigmaS of first plane and sub-sampling.<br />
     algorithm=1:<br />
         It is of constant processing time regardless of sigmaS, while in small sigmaS the smoothing effect is stronger compared to Bilateral filter prototype.<br />
     algorithm=2:<br />
