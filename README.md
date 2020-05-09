@@ -61,7 +61,7 @@ bilateral.Bilateral(clip input, clip ref=input, float[] sigmaS=3.0, float[] sigm
     An array to specify which planes to process.<br />
     By default, chroma planes are not processed.
 
-- algorithm: (Default: 1)<br />
+- algorithm: (Default: 0)<br />
     0 = Automatically determine the algorithm according to sigmaS, sigmaR and PBFICnum.<br />
     1 = O(1) Bilateral filter uses quantized PBFICs. (IMO it should be O(PBFICnum))<br />
     2 = Bilateral filter with truncated spatial window and sub-sampling. O(sigmaS^2)
